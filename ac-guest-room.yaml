@@ -1,0 +1,10 @@
+# ==============================================================================
+# Device: Guest Room Mini-Split
+# ==============================================================================
+substitutions:
+  name: ac_guest_room
+  friendly_name: "Guest Room AC"
+  follow_me_sensor: "sensor.guest_room_temperature"
+
+packages:
+  base_config: !include packages/slwf-base.yaml

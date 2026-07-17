@@ -1,0 +1,10 @@
+# ==============================================================================
+# Device: Office Mini-Split
+# ==============================================================================
+substitutions:
+  name: ac_office
+  friendly_name: "Office AC"
+  follow_me_sensor: "sensor.office_temperature"
+
+packages:
+  base_config: !include packages/slwf-base.yaml

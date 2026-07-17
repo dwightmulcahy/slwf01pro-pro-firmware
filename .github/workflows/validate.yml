@@ -1,0 +1,46 @@
+name: Validate ESPHome Configs
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create dummy secrets.yaml for validation
+        run: |
+          cat <<EOF > secrets.yaml
+          wifi_ssid: "Dummy_SSID"
+          wifi_password: "Dummy_Password"
+          api_key: "0123456789abcdef0123456789abcdef0123456789ab="
+          ota_password: "Dummy_OTA_Password"
+          EOF
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-state-key: 'esphome-validation'
+
+      - name: Install ESPHome
+        run: pip install esphome
+
+      - name: Validate Configurations
+        run: |
+          echo "Validating Living Room..."
+          esphome config ac-living-room.yaml
+          echo "Validating Bedroom..."
+          esphome config ac-bedroom.yaml
+          echo "Validating Office..."
+          esphome config ac-office.yaml
+          echo "Validating Kitchen..."
+          esphome config ac-kitchen.yaml
+          echo "Validating Guest Room..."
+          esphome config ac-guest-room.yaml
+          echo "Validating Dining Room..."
+          esphome config ac-dining-room.yaml

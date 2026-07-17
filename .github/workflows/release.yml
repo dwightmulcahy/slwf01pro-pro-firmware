@@ -1,0 +1,95 @@
+name: Build and Release ESPHome Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Firmware Binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Build all six of your Innovair mini-split configurations
+        config:
+          - ac-living-room.yaml
+          - ac-bedroom.yaml
+          - ac-office.yaml
+          - ac-kitchen.yaml
+          - ac-guest-room.yaml
+          - ac-guest-living-room.yaml
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create dummy secrets.yaml for compile
+        run: |
+          cat <<EOF > secrets.yaml
+          wifi_ssid: "Dummy_SSID"
+          wifi_password: "Dummy_Password"
+          api_key: "0123456789abcdef0123456789abcdef0123456789ab="
+          ota_password: "Dummy_OTA_Password"
+          EOF
+
+      - name: Build ESPHome Firmware
+        uses: esphome/build-action@v6
+        id: esphome-build
+        with:
+          yaml-file: ${{ matrix.config }}
+
+      # Locate the output build directory and rename binary to something clean
+      - name: Organize output binary
+        run: |
+          mkdir -p outputs/
+          # Find the compiled binary from the build output directory and copy it
+          cp .esphome/build/${{ steps.esphome-build.outputs.original-name }}/.pioenvs/${{ steps.esphome-build.outputs.original-name }}/firmware.bin outputs/${{ steps.esphome-build.outputs.original-name }}.bin
+
+      - name: Upload temporary workspace artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ steps.esphome-build.outputs.original-name }}
+          path: outputs/
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all built binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: binaries/
+          merge-multiple: true
+
+      - name: Verify downloaded assets
+        run: ls -R binaries/
+
+      - name: Draft and Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## ESPHome Pro Edition Firmware Binaries
+            
+            Find the pre-compiled `.bin` files for your 6-unit SMLIGHT SLWF-01 Pro adapters below.
+            
+            ### Installation Instructions:
+            1. Download the correct `.bin` file for your room's adapter.
+            2. To install via USB-C for the first time, use **[ESPHome Web Tools](https://web.esphome.io/)** directly in Chrome/Edge, select the binary, and flash.
+            3. For subsequent over-the-air (OTA) updates, select local upload in your HA dashboard or use:
+               ```bash
+               esphome run <your-room-config>.yaml
+               ```
+          files: binaries/*.bin
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

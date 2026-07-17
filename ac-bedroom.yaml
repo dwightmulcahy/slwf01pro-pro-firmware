@@ -1,0 +1,10 @@
+# ==============================================================================
+# Device: Bedroom Mini-Split
+# ==============================================================================
+substitutions:
+  name: ac_bedroom
+  friendly_name: "Bedroom AC"
+  follow_me_sensor: "sensor.bedroom_temperature"
+
+packages:
+  base_config: !include packages/slwf-base.yaml

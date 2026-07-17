@@ -1,0 +1,57 @@
+type: grid
+square: false
+columns: 1
+cards:
+  # --- MAIN CLIMATE CONTROL ---
+  - type: thermostat
+    entity: climate.living_room_ac
+    name: Living Room AC
+    features:
+      - type: climate-fan-modes
+
+  # --- PRO EDITION CUSTOM ACTIONS GRID ---
+  - type: grid
+    square: false
+    columns: 3
+    cards:
+      # Action 1: Screen Display Toggle
+      - type: tile
+        entity: button.living_room_ac_display_toggle
+        icon: mdi:theme-light-dark
+        name: Screen
+        color: amber
+        tap_action:
+          action: press
+
+      # Action 2: Dynamic Beeper Switch
+      - type: tile
+        entity: switch.living_room_ac_beeper
+        icon: mdi:volume-source
+        name: Beeper
+        color: blue
+        tap_action:
+          action: toggle
+
+      # Action 3: Swing Step Adjustment
+      - type: tile
+        entity: button.living_room_ac_swing_step
+        icon: mdi:tailwind
+        name: Swing
+        color: cyan
+        tap_action:
+          action: press
+
+  # --- COLLAPSIBLE DIAGNOSTICS & SYSTEM INFO ---
+  - type: custom:fold-entity-row
+    head:
+      type: section
+      label: Diagnostics & Maintenance
+    entities:
+      - entity: sensor.living_room_ac_wi_fi_signal
+        name: Wi-Fi Signal Strength
+      - entity: sensor.living_room_ac_uptime
+        name: System Uptime
+      - entity: sensor.living_room_ac_free_heap
+        name: ESP8266 Free Memory
+      - entity: button.living_room_ac_restart
+        name: Reboot Controller

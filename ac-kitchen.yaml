@@ -1,0 +1,10 @@
+# ==============================================================================
+# Device: Kitchen Mini-Split
+# ==============================================================================
+substitutions:
+  name: ac_kitchen
+  friendly_name: "Kitchen AC"
+  follow_me_sensor: "sensor.kitchen_temperature"
+
+packages:
+  base_config: !include packages/slwf-base.yaml
